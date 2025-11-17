@@ -1,0 +1,169 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    container_name: medisense_db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-medisense}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-medipass}
+      POSTGRES_DB: ${POSTGRES_DB:-medisense_db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./seed_data/demo_db.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-medisense}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - medisense_network
+
+  # Redis Cache & Message Broker
+  redis:
+    image: redis:7-alpine
+    container_name: medisense_redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - medisense_network
+
+  # Backend FastAPI Application
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: medisense_backend
+    environment:
+      - ENV=${ENV:-development}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://medisense:medipass@db:5432/medisense_db}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+      - MCP_MODE=${MCP_MODE:-mock}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - CHROMA_PERSIST_DIR=/data/chroma
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    volumes:
+      - ./backend/app:/app/app
+      - chroma_data:/data/chroma
+      - ./seed_data:/app/seed_data
+      - ./ragas:/app/ragas
+      - model_data:/app/models
+      - audit_logs:/var/log/medisense
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - medisense_network
+
+  # Celery Worker for Background Tasks
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: medisense_celery_worker
+    environment:
+      - ENV=${ENV:-development}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://medisense:medipass@db:5432/medisense_db}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-redis://redis:6379/0}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND:-redis://redis:6379/0}
+    volumes:
+      - ./backend/app:/app/app
+      - chroma_data:/data/chroma
+      - model_data:/app/models
+    depends_on:
+      - redis
+      - db
+    command: celery -A app.core.celery_app worker --loglevel=info
+    networks:
+      - medisense_network
+
+  # Celery Beat for Scheduled Tasks
+  celery_beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: medisense_celery_beat
+    environment:
+      - ENV=${ENV:-development}
+      - REDIS_URL=${REDIS_URL:-redis://redis:6379/0}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-redis://redis:6379/0}
+    volumes:
+      - ./backend/app:/app/app
+    depends_on:
+      - redis
+    command: celery -A app.core.celery_app beat --loglevel=info
+    networks:
+      - medisense_network
+
+  # Frontend React Application
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: medisense_frontend
+    environment:
+      - REACT_APP_API_URL=${REACT_APP_API_URL:-http://localhost:8000}
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    command: npm start
+    networks:
+      - medisense_network
+
+  # Chroma Vector Database (Optional standalone)
+  # Uncomment if you want to run Chroma as a separate service
+  # chroma:
+  #   image: chromadb/chroma:latest
+  #   container_name: medisense_chroma
+  #   volumes:
+  #     - chroma_data:/chroma/chroma
+  #   ports:
+  #     - "8001:8000"
+  #   environment:
+  #     - CHROMA_SERVER_HOST=0.0.0.0
+  #     - CHROMA_SERVER_HTTP_PORT=8000
+  #   networks:
+  #     - medisense_network
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  chroma_data:
+    driver: local
+  model_data:
+    driver: local
+  audit_logs:
+    driver: local
+
+networks:
+  medisense_network:
+    driver: bridge
