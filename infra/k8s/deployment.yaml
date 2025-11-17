@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: medisense-backend
+  labels:
+    app: medisense
+    component: backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: medisense
+      component: backend
+  template:
+    metadata:
+      labels:
+        app: medisense
+        component: backend
+    spec:
+      containers:
+      - name: backend
+        image: medisense/backend:latest
+        ports:
+        - containerPort: 8000
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: medisense-secrets
+              key: database-url
+        - name: REDIS_URL
+          value: "redis://medisense-redis:6379/0"
+        - name: MCP_MODE
+          value: "anthropic"
+        - name: ANTHROPIC_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: medisense-secrets
+              key: anthropic-api-key
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "2Gi"
+            cpu: "2000m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: medisense-frontend
+  labels:
+    app: medisense
+    component: frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: medisense
+      component: frontend
+  template:
+    metadata:
+      labels:
+        app: medisense
+        component: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: medisense/frontend:latest
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"

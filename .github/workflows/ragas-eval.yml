@@ -1,0 +1,72 @@
+name: RAGAS Evaluation
+
+on:
+  schedule:
+    # Run nightly at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: medisense
+          POSTGRES_PASSWORD: medipass
+          POSTGRES_DB: medisense_eval
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run RAGAS evaluation
+      env:
+        DATABASE_URL: postgresql://medisense:medipass@localhost:5432/medisense_eval
+        MCP_MODE: mock
+        RAGAS_EVAL_DATASET: ragas/testset.jsonl
+        RAGAS_CONFIG: ragas/ragas_config.yaml
+      run: |
+        cd backend
+        python -m pytest app/tests/test_ragas_eval.py -v --tb=short
+
+    - name: Upload evaluation results
+      uses: actions/upload-artifact@v3
+      with:
+        name: ragas-evaluation-results
+        path: |
+          backend/ragas/results/
+          backend/ragas/artifacts/
+        retention-days: 30
+
+    - name: Comment evaluation results
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const results = fs.readFileSync('backend/ragas/results/summary.txt', 'utf8');
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: `## RAGAS Evaluation Results\n\n\`\`\`\n${results}\n\`\`\``
+          });
