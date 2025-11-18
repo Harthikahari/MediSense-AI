@@ -2,7 +2,7 @@
 
 ## Model Context Protocol (MCP) for MediSense-AI
 
-The MCP layer provides a unified interface for external service integration with support for both mock (development) and production (Anthropic Claude) modes.
+The MCP layer provides a unified interface for external service integration with support for both mock (development) and production (Anthropic) modes.
 
 ## Base Client Interface
 
@@ -240,7 +240,7 @@ Activated with `MCP_MODE=mock` in environment.
 
 Activated with `MCP_MODE=anthropic` and valid `ANTHROPIC_API_KEY`.
 
-- Connects to Claude API
+- Connects to Anthropic API
 - Real LLM inference
 - Requires API key authentication
 - Implements retry logic and error handling

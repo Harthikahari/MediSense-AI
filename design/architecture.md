@@ -139,7 +139,7 @@ Abstraction layer for external service integration:
 
 **Modes**:
 - `mock`: Simulated responses for development
-- `anthropic`: Production Claude API integration
+- `anthropic`: Production Anthropic API integration
 
 ### 5. Data Layer
 
@@ -285,7 +285,7 @@ Nightly evaluation:
 - **Cache**: Redis 7
 - **Task Queue**: Celery
 - **ML Inference**: ONNX Runtime
-- **LLM**: Claude (Anthropic)
+- **LLM**: Anthropic AI
 - **Container**: Docker
 - **Orchestration**: Kubernetes
 - **CI/CD**: GitHub Actions

@@ -7,7 +7,7 @@ MediSense-AI is a production-ready, multi-agent Clinical AI Assistant that provi
 ## Features
 
 - **Appointment Scheduling**: Doctor availability-aware booking with timezone support
-- **Clinical Consultation Chat**: Text-based consultations backed by Claude (MCP) and CrewAI orchestration
+- **Clinical Consultation Chat**: Text-based consultations backed by advanced LLM (MCP) and CrewAI orchestration
 - **Symptom Image Analysis**: Medical-grade image classification and segmentation using ONNX models
 - **Report Understanding**: OCR-based extraction of clinical data from PDFs and reports
 - **Prescription Generation**: E-prescription drafts with validation, drug interaction checks, and provenance tracking
@@ -32,7 +32,7 @@ See [Architecture Documentation](design/architecture.md) for detailed system des
 - **Backend**: FastAPI (Python 3.11+)
 - **Frontend**: React with TypeScript
 - **Agent Orchestration**: CrewAI-style multi-agent system
-- **LLM**: Claude (Anthropic) via MCP protocol
+- **LLM**: Anthropic AI via MCP protocol
 - **Vector Database**: Chroma (with Milvus/Pinecone fallback support)
 - **Database**: PostgreSQL
 - **Inference**: ONNX Runtime for medical image analysis
@@ -136,7 +136,7 @@ ANTHROPIC_API_KEY=your_api_key_here
 MCP_HOST=https://api.anthropic.com
 ```
 
-Replace mock MCP with real Claude API integration. Ensure you have valid Anthropic API credentials.
+Replace mock MCP with real Anthropic API integration. Ensure you have valid Anthropic API credentials.
 
 ## Agent System
 
@@ -236,7 +236,7 @@ For issues and questions:
 
 - Built with [FastAPI](https://fastapi.tiangolo.com/)
 - Agent orchestration inspired by [CrewAI](https://github.com/joaomdmoura/crewAI)
-- LLM integration via [Anthropic Claude](https://www.anthropic.com/)
+- LLM integration via [Anthropic](https://www.anthropic.com/)
 - Evaluation powered by [RAGAS](https://github.com/explodinggradients/ragas)
 
 ---

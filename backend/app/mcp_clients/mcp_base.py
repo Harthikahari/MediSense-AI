@@ -71,7 +71,7 @@ class ToolClient(ABC):
 class AnthropicMCPClient(ToolClient):
     """
     Anthropic MCP client for production use.
-    Communicates with Claude API via MCP protocol.
+    Communicates with Anthropic API via MCP protocol.
     """
 
     def __init__(self):
