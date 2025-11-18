@@ -32,7 +32,7 @@ evaluation:
 # LLM configuration for evaluation
 llm:
   provider: "mock"  # Use mock for testing, "anthropic" for production
-  model: "claude-3-sonnet"
+  model: "anthropic-sonnet-3"
   temperature: 0.0
 
 # Embeddings configuration
