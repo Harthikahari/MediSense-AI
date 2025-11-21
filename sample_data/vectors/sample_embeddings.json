@@ -1,0 +1,97 @@
+{
+  "metadata": {
+    "description": "Sample vector embeddings for MediSense-AI RAG system",
+    "model": "sentence-transformers/all-MiniLM-L6-v2",
+    "dimension": 384,
+    "created_at": "2025-11-21T00:00:00Z",
+    "total_documents": 10
+  },
+  "documents": [
+    {
+      "id": "emb_001",
+      "title": "Asthma Management Guidelines",
+      "category": "respiratory",
+      "content_preview": "Asthma is a chronic respiratory condition characterized by airway inflammation...",
+      "embedding_preview": [0.0234, -0.0156, 0.0891, -0.0423, 0.0567],
+      "note": "Full 384-dimensional embedding stored in vector database"
+    },
+    {
+      "id": "emb_002",
+      "title": "Diabetes Management Overview",
+      "category": "endocrine",
+      "content_preview": "Type 2 Diabetes management focuses on glycemic control through lifestyle...",
+      "embedding_preview": [0.0312, -0.0289, 0.0734, -0.0512, 0.0623],
+      "note": "Full 384-dimensional embedding stored in vector database"
+    },
+    {
+      "id": "emb_003",
+      "title": "Hypertension Treatment Guidelines",
+      "category": "cardiovascular",
+      "content_preview": "Blood pressure targets: <130/80 mmHg for most adults with hypertension...",
+      "embedding_preview": [0.0198, -0.0345, 0.0812, -0.0467, 0.0534],
+      "note": "Full 384-dimensional embedding stored in vector database"
+    },
+    {
+      "id": "emb_004",
+      "title": "Cholesterol Management",
+      "category": "cardiovascular",
+      "content_preview": "Statin therapy is recommended for: 1) Clinical ASCVD, 2) LDL ≥190 mg/dL...",
+      "embedding_preview": [0.0267, -0.0412, 0.0756, -0.0389, 0.0612],
+      "note": "Full 384-dimensional embedding stored in vector database"
+    },
+    {
+      "id": "emb_005",
+      "title": "Contact Dermatitis Guide",
+      "category": "dermatology",
+      "content_preview": "Contact dermatitis is an inflammatory skin reaction caused by direct contact...",
+      "embedding_preview": [0.0145, -0.0523, 0.0678, -0.0234, 0.0789],
+      "note": "Full 384-dimensional embedding stored in vector database"
+    },
+    {
+      "id": "emb_006",
+      "title": "Anxiety Disorder Management",
+      "category": "psychiatry",
+      "content_preview": "Generalized anxiety disorder treatment options: 1) Psychotherapy - CBT...",
+      "embedding_preview": [0.0356, -0.0178, 0.0923, -0.0567, 0.0445],
+      "note": "Full 384-dimensional embedding stored in vector database"
+    },
+    {
+      "id": "emb_007",
+      "title": "GERD Treatment Protocol",
+      "category": "gastroenterology",
+      "content_preview": "Gastroesophageal reflux disease management: 1) Lifestyle modifications...",
+      "embedding_preview": [0.0289, -0.0634, 0.0567, -0.0312, 0.0856],
+      "note": "Full 384-dimensional embedding stored in vector database"
+    },
+    {
+      "id": "emb_008",
+      "title": "Hypothyroidism Management",
+      "category": "endocrine",
+      "content_preview": "Hypothyroidism treatment with levothyroxine: Start low dose (25-50 mcg)...",
+      "embedding_preview": [0.0423, -0.0256, 0.0834, -0.0478, 0.0534],
+      "note": "Full 384-dimensional embedding stored in vector database"
+    },
+    {
+      "id": "emb_009",
+      "title": "Metformin Drug Information",
+      "category": "drug_information",
+      "content_preview": "Metformin (Glucophage): Biguanide antidiabetic. Mechanism: Decreases hepatic...",
+      "embedding_preview": [0.0178, -0.0489, 0.0712, -0.0345, 0.0623],
+      "note": "Full 384-dimensional embedding stored in vector database"
+    },
+    {
+      "id": "emb_010",
+      "title": "Atorvastatin Drug Information",
+      "category": "drug_information",
+      "content_preview": "Atorvastatin (Lipitor): HMG-CoA reductase inhibitor. Mechanism: Inhibits...",
+      "embedding_preview": [0.0234, -0.0567, 0.0689, -0.0412, 0.0578],
+      "note": "Full 384-dimensional embedding stored in vector database"
+    }
+  ],
+  "usage_instructions": {
+    "loading": "Use ChromaDB client to load embeddings from this seed data",
+    "example": {
+      "python": "chroma_client.create_collection('medical_knowledge').add(documents=docs, embeddings=embeddings, ids=ids)"
+    }
+  }
+}
